@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barra de progreso</title>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        * > *{
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        html, body{
+            margin: 0;
+            padding: 0;
+            background-color: #E34949;
+            height: 100vh;
+        }
+
+        #root{
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #custom-button{
+            padding: 12px 32px;
+            background-color: #E34949;
+            border: none;
+            color: #F5E9E7;
+            font-size: 14pt;
+            font-weight: 800;
+            border-radius: 6px;
+            transition: linear;
+            transition-duration: 0.5s;
+        }
+
+        #custom-button:hover{
+            background-color: #f16b6b;
+            cursor: pointer;
+        }
+
+        #progressbar-main-container{
+            width: 500px;
+        }
+
+        #progressbar-main-container h3{
+            text-align: center;
+        }
+
+        #progressbar-container{
+            display: flex;
+            justify-content: flex-start;
+            height: 12px;
+            border: 1px solid #ad3030;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        #progressbar{
+            background-color: #F5E9E7;
+            transition: linear;
+            transition-duration: 0.5s;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+
+        const ProgressBar = ({next}) => {
+
+            const [progress, setProgress] = React.useState(0);
+            const ref = React.useRef(progress);
+
+            React.useEffect(() => {
+                const interval = setInterval(() => {
+                    
+                    if (ref.current < 100){
+                        ref.current = ref.current + 10;
+                        setProgress(ref.current)
+                    }
+                    else{
+                        next('end');
+                    }
+
+                }, 1000);
+                return () => clearInterval(interval);
+            }, []);
+
+            return(
+                <div id="progressbar-main-container">
+                    <h3>Cargando...</h3>
+                    <div id="progressbar-container">
+                        <span id="progressbar" style={{width: progress + '%'}} />
+                    </div>
+                </div>
+            );
+
+        }
+
+        const StartLoading = ({next}) => {
+
+            return(
+
+                <button id="custom-button" onClick={() => next('loading')}>Iniciar carga</button>
+                
+                );
+                
+            }
+            
+            const EndLoad = ({next}) => {
+                
+                return(
+                    
+                    <React.Fragment>
+                        <h3 style={{textAlign: 'center', color: '#F5E9E7'}}>Carga finalizada</h3>
+                        <button id="custom-button" onClick={() => next('start')}>Volver al inicio</button>
+                    </React.Fragment>
+
+
+            );
+
+        }
+
+        const App = () => {
+
+            const [screen, setScreen] = React.useState('start');
+
+            return(
+                <div className="main-container">
+                
+                    {screen === 'start' ? 
+                    <StartLoading next={setScreen} /> :
+                        screen === 'loading' ? 
+                        <ProgressBar next={setScreen} /> :
+                            screen === 'end' ?
+                            <EndLoad next={setScreen} /> :
+                            <h3 style={{color: '#F5E9E7'}}>Pantalla invalida :(</h3>
+                    }
+
+                </div>
+            );
+
+        }
+        
+        const domContainer = document.querySelector('#root');
+        ReactDOM.render(<React.StrictMode><App /></React.StrictMode>, domContainer);
+    </script>
+</body>
+</html>
